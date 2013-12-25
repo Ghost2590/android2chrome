@@ -13,12 +13,13 @@ include("BaseResource.php");
 /**
  * Class AuthenticationResource
  *
- * @uri /auth/:op/:user
+ * @uri /links/:op/:user/
+ * @uri /links/:op/:user/:link
  */
-class AuthenticationResource extends BaseResource{
+class LinksResource extends BaseResource{
 
     /**
-     * @method POST
+     * @method GET
      * @json
      * @return Tonic\Response
      */
@@ -29,21 +30,21 @@ class AuthenticationResource extends BaseResource{
     }
 
     /**
-     * @method PUT
+     * @method GET
      * @provides application/json
-     * @onlyOp register
+     * @onlyOp get
      * @json
      * @return Tonic\Response
      */
-    public function register(){
+    public function get(){
         $response = new Response();
         $response->code = RESPONSE::OK;
 
         $user = $this->request->data->user;
 
-        $model = new Models\AuthenticationModel();
+        $model = new Models\LinksModel();
 
-        $user = $model->register($user);
+        $user = $model->getLinks($user);
 
         if (!$user){
             $response->code = RESPONSE::BADREQUEST;
@@ -54,21 +55,22 @@ class AuthenticationResource extends BaseResource{
     }
 
     /**
-     * @method UPDATE
+     * @method PUT
      * @provides application/json
-     * @onlyOp login
+     * @onlyOp insert
      * @json
      * @return Tonic\Response
      */
-    public function login(){
+    public function insert(){
         $response = new Response();
         $response->code = RESPONSE::OK;
 
         $user = $this->request->data->user;
+        $link = $this->request->data->link;
 
-        $model = new Models\AuthenticationModel();
+        $model = new Models\LinksModel();
 
-        $res = $model->login($user);
+        $res = $model->insertLink($user, $link);
 
         if (!$res){
             $response->code = RESPONSE::BADREQUEST;
@@ -81,21 +83,22 @@ class AuthenticationResource extends BaseResource{
     /**
      * @method UPDATE
      * @provides application/json
-     * @onlyOp logout
+     * @onlyOp update
      * @json
      * @return Tonic\Response
      */
-    public function logout(){
+    public function updateLink(){
         $response = new Response();
         $response->code = RESPONSE::OK;
 
         $user = $this->request->data->user;
+        $link = $this->request->data->link;
 
-        $model = new Models\AuthenticationModel();
+        $model = new Models\LinksModel();
 
-        $user = $model->logout($user);
+        $res = $model->updateLink($user, $link);
 
-        if (!$user){
+        if (!$res){
             $response->code = RESPONSE::BADREQUEST;
         }
         $response->body = $user;
@@ -115,10 +118,11 @@ class AuthenticationResource extends BaseResource{
         $response->code = RESPONSE::OK;
 
         $user = $this->request->data->user;
+        $link = $this->request->data->link;
 
-        $model = new Models\AuthenticationModel();
+        $model = new Models\LinksModel();
 
-        $user = $model->delete($user);
+        $user = $model->deleteLink($user, $link);
 
         if (!$user){
             $response->code = RESPONSE::BADREQUEST;
@@ -128,7 +132,28 @@ class AuthenticationResource extends BaseResource{
         return $response;
     }
 
-    public function checkIfAccount($email){
+    /**
+     * @method DELETE
+     * @provides application/json
+     * @onlyOp deleteAll
+     * @json
+     * @return Tonic\Response
+     */
+    public function deleteAll(){
+        $response = new Response();
+        $response->code = RESPONSE::OK;
 
+        $user = $this->request->data->user;
+
+        $model = new Models\LinksModel();
+
+        $user = $model->deleteAllLinks($user);
+
+        if (!$user){
+            $response->code = RESPONSE::BADREQUEST;
+        }
+        $response->body = $user;
+
+        return $response;
     }
 }

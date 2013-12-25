@@ -1,4 +1,5 @@
 <?php
+namespace Android2Chrome;
 //namespace Resources;
 
 use Tonic\Application;
@@ -7,8 +8,8 @@ use Tonic\Resource,
     Tonic\Response,
     Tonic\ConditionException;
 
-include_once('lib/db/mysqldatabase.php');
-include_once('lib/db/mysqlresultset.php');
+include_once('lib/db/databasemysql.php');
+//include_once('lib/db/mysqlresultset_old.php');
 
 class BaseResource extends Resource {
 
@@ -42,14 +43,32 @@ class BaseResource extends Resource {
         });
     }
 
-    protected function getDBO () {
-        $db = MySqlDatabase::getInstance();
+    /**
+     * Condition method for above methods.
+     *
+     * Only allow specific :op parameter to access the method
+     */
+    protected function onlyOp($allowedOp){
+        if (strtolower($allowedOp) != strtolower($this->op)) throw new ConditionException;
+    }
+
+    protected function getDBO ($type = 'read') {
+//        $db = MySqlDatabase::getInstance();
+//        try {
+//            $db->connect('localhost', 'root', '', 'android2chrome');
+//            return $db;
+//        }
+//        catch (Exception $e) {
+//            die($e->getMessage());
+//        }
         try {
-            $db->connect('localhost', 'root', '', 'android2chrome');
+            $db = new WSDBMysql($type);
+//            $db->connect('localhost', 'root', '', 'android2chrome');
             return $db;
         }
         catch (Exception $e) {
             die($e->getMessage());
         }
+
     }
 }
